@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriTrace 360 | Farm Produce Supply Chain & QR Provenance Tracker</title>
+  <meta name="description" content="Decentralized farm-to-fork supply chain tracker. Scan QR codes on fresh produce to inspect the complete journey, farm origin, cold chain IoT telemetry, and cryptographic blockchain proof.">
+  <meta name="theme-color" content="#090d16">
+  
+  <!-- Modern Typography Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Core Design System CSS -->
+  <link rel="stylesheet" href="css/styles.css?v=3">
+</head>
+<body>
+
+  <!-- Hidden file input for uploading QR code images -->
+  <input type="file" id="qr-file-input" accept="image/*" style="display: none;">
+
+  <div class="app-wrapper">
+    
+    <!-- Top Sticky Header Navigation -->
+    <header class="app-header glass-panel">
+      <div class="brand-container">
+        <div class="brand-icon-wrapper">
+          <!-- Sprout & Chain SVG -->
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 20h10" />
+            <path d="M10 20c0-4 1.5-7 4-9" />
+            <path d="M14 11c1-4 4-5 6-5 0 3-1 6-5 6" />
+            <path d="M10 14c-2.5 0-4-2-4-5 3 0 5 1.5 5 4" />
+          </svg>
+        </div>
+        <div class="brand-titles">
+          <h1>AgriTrace <span>360</span></h1>
+          <div class="brand-sub">Decentralized Farm-to-Fork Provenance</div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs" aria-label="Main Navigation">
+        <button class="nav-tab-btn active" id="tab-btn-trace" data-view="view-trace">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            <path d="M14 14h2v2h-2z M19 14h2v2h-2z M14 19h2v2h-2z M19 19h2v2h-2z"></path>
+          </svg>
+          Scan & Trace Chain
+        </button>
+
+        <button class="nav-tab-btn" id="tab-btn-directory" data-view="view-directory">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          Produce Directory
+        </button>
+
+        <button class="nav-tab-btn" id="tab-btn-register" data-view="view-register">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+          Dispatch & Mint Batch
+        </button>
+
+        <button class="nav-tab-btn" id="tab-btn-ledger" data-view="view-ledger">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+          Ledger Explorer
+        </button>
+      </nav>
+
+      <!-- Ledger Status & Sound Toggle -->
+      <div class="header-actions">
+        <div class="ledger-pill" title="Cryptographic Ledger Node Connected">
+          <span class="pulse-dot"></span>
+          <span>Ledger Synced #18,492</span>
+        </div>
+        <button class="icon-btn" id="btn-sound-toggle" title="Toggle Sound Feedback">
+          <svg id="sound-icon-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ======================================================================
+         VIEW 1: SCAN QR & WHOLE SUPPLY CHAIN PROVENANCE
+         ====================================================================== -->
+    <main id="view-trace" class="view-section active">
+
+      <!-- Scanner Hero Hub -->
+      <section class="scanner-hero-card glass-panel">
+        <div class="scanner-hero-header">
+          <div class="scanner-hero-titles">
+            <h2>Scan Produce QR Code</h2>
+            <p>Scan a produce box QR tag or upload an image to reveal origin, cold chain IoT telemetry, and whole journey verification.</p>
+          </div>
+
+          <!-- Scan Action Buttons -->
+          <div class="scan-options-row">
+            <button class="btn-primary" id="btn-open-camera-scanner">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+              Open Camera Scanner
+            </button>
+
+            <button class="btn-secondary" id="btn-upload-qr-image">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              Upload QR Image
+            </button>
+
+            <!-- Search by ID -->
+            <div class="search-input-group">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-muted); margin-right: 6px;">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="input-batch-search" placeholder="Enter Batch ID (e.g. AGRI-2026-MNG-9842)...">
+              <button class="btn-primary" id="btn-submit-search" style="padding: 8px 14px; font-size: 0.8rem;">
+                Search
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Whole Chain Provenance Results (Revealed after QR scan or Batch ID entered) -->
+      <div id="trace-results-container" style="display: none;">
+        <!-- Active Produce Hero Banner -->
+        <section class="produce-hero-card glass-panel" id="produce-hero-section">
+        <div class="produce-hero-media">
+          <img id="produce-hero-img" src="assets/images/mango.jpg" alt="Produce Image">
+          <div class="produce-floating-badge" id="produce-floating-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+            </svg>
+            <span id="produce-badge-text">100% Organic Certified</span>
+          </div>
+          <div class="produce-qr-overlay" id="produce-qr-thumbnail-btn" title="Click to view printable packaging label">
+            <div id="produce-qr-thumb-canvas"></div>
+          </div>
+        </div>
+
+        <div class="produce-hero-content">
+          <div class="produce-header-top">
+            <div class="produce-batch-id-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+              </svg>
+              <span id="produce-batch-id">AGRI-2026-MNG-9842</span>
+              <button class="copy-icon-btn" id="btn-copy-batch-id" title="Copy Batch ID">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="stage-badge badge-completed" id="produce-status-pill">
+              On Supermarket Shelf
+            </div>
+          </div>
+
+          <div>
+            <h2 class="produce-title" id="produce-name">Royal Alphonso Mangoes</h2>
+            <div class="produce-subtitle" id="produce-variety">Ratnagiri GI-Tagged Organic Hapus • Tropical Fruit</div>
+          </div>
+
+          <!-- Key Provenance Highlights Grid -->
+          <div class="hero-stats-grid">
+            <div class="hero-stat-box">
+              <div class="hero-stat-label">Origin Farm</div>
+              <div class="hero-stat-value" id="produce-stat-farm" style="font-size: 0.95rem;">Ratnagiri Orchards</div>
+            </div>
+            <div class="hero-stat-box">
+              <div class="hero-stat-label">Harvest Date</div>
+              <div class="hero-stat-value" id="produce-stat-harvest">Oct 23, 2026</div>
+            </div>
+            <div class="hero-stat-box">
+              <div class="hero-stat-label">Quality Grade</div>
+              <div class="hero-stat-value" id="produce-stat-grade">Grade A+</div>
+            </div>
+            <div class="hero-stat-box">
+              <div class="hero-stat-label">Integrity Score</div>
+              <div class="hero-stat-value verified" id="produce-stat-trust">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <span>99.8%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons Bar -->
+          <div class="produce-actions-row">
+            <button class="btn-primary" id="btn-print-label-modal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+              Print QR Batch Label
+            </button>
+
+            <button class="btn-secondary" id="btn-verify-blockchain">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+              </svg>
+              Verify Ledger Integrity
+            </button>
+
+            <button class="btn-secondary" id="btn-open-tip-modal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              Send Farmer Tip
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Visual Supply Chain Stepper -->
+      <section class="stepper-container glass-panel">
+        <div class="stepper-title-bar">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--emerald-400);">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Complete Farm-to-Fork Supply Chain Progress
+          </h3>
+          <div class="stage-badge badge-completed" id="stepper-summary-badge">
+            All 5 Stages Verified
+          </div>
+        </div>
+
+        <div class="stepper-nav">
+          <div class="stepper-line-track">
+            <div class="stepper-line-progress" id="stepper-progress-fill" style="width: 100%;"></div>
+          </div>
+
+          <div class="stepper-node completed" data-stage="stage-1">
+            <div class="stepper-node-bubble">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20v-8M6 20h12M4 9c4-4 8 0 8 0s4-4 8 0c0 4-4 8-8 8s-8-4-8-8z"></path>
+              </svg>
+            </div>
+            <div class="stepper-node-label">Farm Origin</div>
+            <div class="stepper-node-stage-tag">Stage 1</div>
+          </div>
+
+          <div class="stepper-node completed" data-stage="stage-2">
+            <div class="stepper-node-bubble">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <div class="stepper-node-label">Packhouse QA</div>
+            <div class="stepper-node-stage-tag">Stage 2</div>
+          </div>
+
+          <div class="stepper-node completed" data-stage="stage-3">
+            <div class="stepper-node-bubble">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
+              </svg>
+            </div>
+            <div class="stepper-node-label">Cold Storage</div>
+            <div class="stepper-node-stage-tag">Stage 3</div>
+          </div>
+
+          <div class="stepper-node completed" data-stage="stage-4">
+            <div class="stepper-node-bubble">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="3" width="15" height="13"></rect>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                <circle cx="18.5" cy="18.5" r="2.5"></circle>
+              </svg>
+            </div>
+            <div class="stepper-node-label">Cold Transit</div>
+            <div class="stepper-node-stage-tag">Stage 4</div>
+          </div>
+
+          <div class="stepper-node completed" data-stage="stage-5">
+            <div class="stepper-node-bubble">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+            </div>
+            <div class="stepper-node-label">Retail Shelf</div>
+            <div class="stepper-node-stage-tag">Stage 5</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- The Whole Chain Timeline Cards Container -->
+      <section class="chain-timeline-section" id="chain-stages-container">
+        <!-- Rendered dynamically by app.js -->
+      </section>
+
+      <!-- Farmer Story & Appreciation -->
+      <section class="farmer-story-card glass-panel" style="margin-bottom: 36px;">
+        <div class="farmer-header">
+          <div class="farmer-avatar" id="farmer-avatar-letter">R</div>
+          <div class="farmer-bio">
+            <h4 id="farmer-name">Rameshwar Patil</h4>
+            <p id="farmer-role-location">Master Grower • Ratnagiri, India</p>
+          </div>
+        </div>
+        <blockquote class="farmer-quote" id="farmer-quote">
+          "We hand-pick each mango at sunrise when the natural sap seal forms. No synthetic ripening agents, pure sunlight and soil."
+        </blockquote>
+        <div class="farmer-gratitude-action">
+          <div class="tip-count-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span id="farmer-tip-count">184 Consumers thanked this grower</span>
+          </div>
+          <button class="btn-secondary" id="btn-card-tip" style="padding: 8px 16px; font-size: 0.84rem;">
+            Send Appreciation
+          </button>
+        </div>
+      </section>
+
+      </div> <!-- /#trace-results-container -->
+
+    </main>
+
+    <!-- ======================================================================
+         VIEW 2: PRODUCE DIRECTORY (ALL REGISTERED BATCHES)
+         ====================================================================== -->
+    <section id="view-directory" class="view-section">
+      <div class="glass-panel" style="padding: 28px; margin-bottom: 24px;">
+        <div class="scanner-hero-header">
+          <div class="scanner-hero-titles">
+            <h2>Registered Farm Produce Directory</h2>
+            <p>Comprehensive ledger directory of all registered farm produce batches in a searchable list view.</p>
+          </div>
+          <div class="search-input-group" style="max-width: 380px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-muted); margin-right: 6px;">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="directory-search-input" placeholder="Search by crop, farm, or Batch ID...">
+          </div>
+        </div>
+
+        <!-- Filter Chips Bar -->
+        <div class="directory-filter-bar">
+          <div class="directory-filter-chips" id="directory-category-chips">
+            <button class="directory-chip-btn active" data-category="ALL">All Produce</button>
+            <button class="directory-chip-btn" data-category="Tropical Fruit">Tropical Fruit</button>
+            <button class="directory-chip-btn" data-category="Leafy Greens">Leafy Greens</button>
+            <button class="directory-chip-btn" data-category="Subtropical Fruit">Subtropical Fruit</button>
+            <button class="directory-chip-btn" data-category="Fresh Berries">Fresh Berries</button>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;" id="directory-count-badge">
+            4 Batches Listed
+          </div>
+        </div>
+
+        <!-- List View Table Container -->
+        <div class="directory-list-container">
+          <div class="directory-list-header">
+            <div>Produce & Variety</div>
+            <div>Batch ID</div>
+            <div>Farm Origin & Grower</div>
+            <div>Harvest Date</div>
+            <div>Supply Chain Status</div>
+            <div style="text-align: right;">Action</div>
+          </div>
+          <div id="directory-batches-list" style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- Dynamically populated List Rows -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         VIEW 3: DISPATCH & MINT NEW BATCH PORTAL
+         ====================================================================== -->
+    <section id="view-register" class="view-section">
+      <div class="glass-panel" style="padding: 28px; margin-bottom: 24px;">
+        <div class="scanner-hero-titles" style="margin-bottom: 18px;">
+          <h2>Register & Mint Produce Batch with Complete Facility History</h2>
+          <p>Record all facilities this produce traveled through (Farm &rarr; Packhouse &rarr; Cold Hub &rarr; Transit &rarr; Supermarket Shelf) so in-store consumers scanning the QR code see the whole verified chain.</p>
+        </div>
+
+        <!-- In-Store Produce Setup Banner with Quick Autofill -->
+        <div style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; padding: 16px 20px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.28); border-radius: var(--radius-md);">
+          <div>
+            <div style="font-weight: 700; font-size: 0.96rem; color: var(--emerald-400); display: flex; align-items: center; gap: 8px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+              </svg>
+              In-Store Produce Provenance Model
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 3px;">
+              Enter the actual facilities it visited, or click autofill to load a realistic farm-to-store journey.
+            </div>
+          </div>
+          <button type="button" class="btn-secondary" id="btn-autofill-facilities" style="padding: 9px 18px; font-size: 0.84rem; border-color: var(--emerald-400); color: var(--emerald-400); font-weight: 600;">
+            ✨ Autofill Sample In-Store Produce
+          </button>
+        </div>
+
+        <form id="create-batch-form">
+          <div class="form-grid">
+
+            <!-- Card 0: Produce Identity & Specs -->
+            <div class="form-facility-card">
+              <div class="facility-card-header">
+                <span class="facility-step-pill">Crop Identity</span>
+                <h3>Produce & Crop Information</h3>
+              </div>
+              <p class="facility-card-desc">Basic identification for the produce item sold on the store shelf.</p>
+
+              <div class="form-group">
+                <label class="form-label" for="form-name">Produce Name</label>
+                <input type="text" class="form-control" id="form-name" required placeholder="e.g. Heirloom Cherry Tomatoes">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-variety">Variety / Cultivar</label>
+                <input type="text" class="form-control" id="form-variety" required placeholder="e.g. Sweet SunGold Vine-Ripened">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-category">Category</label>
+                <select class="form-control" id="form-category">
+                  <option value="Vine Vegetable" selected>Vine Vegetable</option>
+                  <option value="Tropical Fruit">Tropical Fruit</option>
+                  <option value="Leafy Greens">Leafy Greens</option>
+                  <option value="Fresh Berries">Fresh Berries</option>
+                  <option value="Root Vegetable">Root Vegetable</option>
+                  <option value="Orchard Fruit">Orchard Fruit</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-image-preset">Produce Image Preset</label>
+                <select class="form-control" id="form-image-preset">
+                  <option value="assets/images/strawberry.jpg" selected>Fresh Vine Fruit / Berries</option>
+                  <option value="assets/images/mango.jpg">Mango Crate (Sunridge Farms)</option>
+                  <option value="assets/images/lettuce.jpg">Hydroponic Butterhead (SkyHarvest)</option>
+                  <option value="assets/images/avocado.jpg">Heritage Hass Avocados (Valle Verde)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-grade">Quality Grade</label>
+                <input type="text" class="form-control" id="form-grade" value="Grade A+ Certified Organic">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-brix">Brix Sweetness Level (Sugar Content)</label>
+                <input type="text" class="form-control" id="form-brix" placeholder="e.g. 10.5° Bx">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-soil">Cultivation Soil pH</label>
+                <input type="text" class="form-control" id="form-soil" placeholder="e.g. 6.5 (Loamy silt)">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-farmer-quote">Farmer's Story / Harvesting Note</label>
+                <textarea class="form-control" id="form-farmer-quote" rows="2" placeholder="e.g. Harvested at first morning light when natural sweetness peaks."></textarea>
+              </div>
+            </div>
+
+            <!-- Card 1: Facility 1 (Farm Origin) -->
+            <div class="form-facility-card">
+              <div class="facility-card-header">
+                <span class="facility-step-pill">Facility 1 of 5</span>
+                <h3>Farm Origin & Harvest Facility</h3>
+              </div>
+              <p class="facility-card-desc">The primary orchard, field, or greenhouse where this crop was harvested.</p>
+
+              <div class="form-group">
+                <label class="form-label" for="form-farm">Farm / Orchard Facility Name</label>
+                <input type="text" class="form-control" id="form-farm" required placeholder="e.g. Sunny Brook Organic Terraces">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-farmer">Lead Grower / Farmer Name</label>
+                <input type="text" class="form-control" id="form-farmer" required placeholder="e.g. Arthur Pendelton">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-location">Farm Location (City / Region / Country)</label>
+                <input type="text" class="form-control" id="form-location" required placeholder="e.g. Devon Organic Valley, UK">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-harvest-date">Harvest Date</label>
+                <input type="date" class="form-control" id="form-harvest-date" required>
+              </div>
+            </div>
+
+            <!-- Card 2: Facility 2 (Packhouse) -->
+            <div class="form-facility-card">
+              <div class="facility-card-header">
+                <span class="facility-step-pill">Facility 2 of 5</span>
+                <h3>Packhouse & Processing Facility</h3>
+              </div>
+              <p class="facility-card-desc">The post-harvest washing, optical sorting, and eco-packaging facility.</p>
+
+              <div class="form-group">
+                <label class="form-label" for="form-packhouse-name">Packhouse Facility Name</label>
+                <input type="text" class="form-control" id="form-packhouse-name" required placeholder="e.g. Devon Central Agro-Processing Packhouse">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-packhouse-loc">Packhouse Location</label>
+                <input type="text" class="form-control" id="form-packhouse-loc" required placeholder="e.g. South West Logistics Hub, Devon, UK">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-packhouse-operator">QA Lead / Safety Inspector</label>
+                <input type="text" class="form-control" id="form-packhouse-operator" required placeholder="e.g. Dr. Eleanor Vance (Chief Food Safety Inspector)">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-packhouse-notes">Sanitization & Packaging Method</label>
+                <input type="text" class="form-control" id="form-packhouse-notes" placeholder="e.g. Ozonated micro-bubble wash, NIR optical defect grading & honeycomb pulp punnets">
+              </div>
+            </div>
+
+            <!-- Card 3: Facility 3 (Cold Storage Hub) -->
+            <div class="form-facility-card">
+              <div class="facility-card-header">
+                <span class="facility-step-pill">Facility 3 of 5</span>
+                <h3>Cold Storage & Distribution Hub</h3>
+              </div>
+              <p class="facility-card-desc">The regional climate-controlled warehouse facility maintaining freshness lock.</p>
+
+              <div class="form-group">
+                <label class="form-label" for="form-cold-hub-name">Cold Storage Facility Name</label>
+                <input type="text" class="form-control" id="form-cold-hub-name" required placeholder="e.g. Apex Regional Cold Logistics Terminal #4">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-cold-hub-loc">Cold Hub Location</label>
+                <input type="text" class="form-control" id="form-cold-hub-loc" required placeholder="e.g. Bristol Inland Freight Hub, UK">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-cold-hub-temp">Chamber Temperature (°C)</label>
+                <input type="text" class="form-control" id="form-cold-hub-temp" placeholder="e.g. 4.2°C (Optimal Cold Lock)">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-cold-hub-operator">Hub Operator / Telemetry Node</label>
+                <input type="text" class="form-control" id="form-cold-hub-operator" placeholder="e.g. Automated Climate Gateway CH-88">
+              </div>
+            </div>
+
+            <!-- Card 4: Facility 4 (Reefer Freight Transit) -->
+            <div class="form-facility-card">
+              <div class="facility-card-header">
+                <span class="facility-step-pill">Facility 4 of 5</span>
+                <h3>Refrigerated Freight & Transit Carrier</h3>
+              </div>
+              <p class="facility-card-desc">The logistics fleet and transit corridor delivering produce to the retailer.</p>
+
+              <div class="form-group">
+                <label class="form-label" for="form-transit-carrier">Logistics Carrier & Fleet Vehicle</label>
+                <input type="text" class="form-control" id="form-transit-carrier" required placeholder="e.g. GreenLine Eco-Reefer Freight Van #VR-402">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-transit-route">Transit Route / Corridor</label>
+                <input type="text" class="form-control" id="form-transit-route" required placeholder="e.g. M4 Highway Corridor: Bristol to Central London">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-transit-temp">Transit Reefer Temperature (°C)</label>
+                <input type="text" class="form-control" id="form-transit-temp" placeholder="e.g. 4.5°C (Continuous Telemetry)">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-transit-operator">Transport Carrier Lead</label>
+                <input type="text" class="form-control" id="form-transit-operator" placeholder="e.g. Swift Logistics Fleet Operator">
+              </div>
+            </div>
+
+            <!-- Card 5: Facility 5 (Retail Supermarket Store) -->
+            <div class="form-facility-card">
+              <div class="facility-card-header">
+                <span class="facility-step-pill">Facility 5 of 5 (Current Store)</span>
+                <h3>Retail Supermarket Store (Where QR is Scanned)</h3>
+              </div>
+              <p class="facility-card-desc">The store location and shelf placement where consumers pick up and scan this produce item.</p>
+
+              <div class="form-group">
+                <label class="form-label" for="form-store-name">Supermarket / Retail Store Name</label>
+                <input type="text" class="form-control" id="form-store-name" required placeholder="e.g. Artisan Fresh Organic Supermarket">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-store-loc">Store Address & City</label>
+                <input type="text" class="form-control" id="form-store-loc" required placeholder="e.g. 142 High Street, Kensington, London W8 4SG">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-store-shelf">Shelf Display Placement</label>
+                <input type="text" class="form-control" id="form-store-shelf" placeholder="e.g. Aisle 1 - Organic Fresh Produce Island #B-3">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="form-store-operator">Store Produce Manager</label>
+                <input type="text" class="form-control" id="form-store-operator" placeholder="e.g. Markus Davies (Department Manager)">
+              </div>
+            </div>
+
+            <!-- Submit Action -->
+            <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 12px;">
+              <button type="submit" class="btn-primary" style="padding: 14px 28px; font-size: 1rem; width: 100%; justify-content: center;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+                Mint Batch with All 5 Facilities & Generate Store QR
+              </button>
+              <span style="font-size: 0.82rem; color: var(--text-muted); text-align: center;">
+                Instantly generates 5 cryptographically linked blockchain blocks. Ready for in-store consumer QR scanning.
+              </span>
+            </div>
+
+          </div>
+        </form>
+
+        <!-- Advance Existing Batches Portal -->
+        <div style="margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--border-subtle);">
+          <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 14px;">
+            Supply Chain Dispatch Operations: Advance Produce Stage
+          </h3>
+          <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 20px;">
+            Simulate produce progressing across logistics checkpoints (e.g. Farm -> Packhouse -> Cold Storage -> Reefer Transit -> Retailer).
+          </p>
+          <div id="advance-batch-list" style="display: flex; flex-direction: column; gap: 14px;">
+            <!-- Dynamically populated advance stage cards -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         VIEW 4: BLOCKCHAIN LEDGER EXPLORER
+         ====================================================================== -->
+    <section id="view-ledger" class="view-section">
+      <div class="glass-panel" style="padding: 28px;">
+        <div class="scanner-hero-header">
+          <div class="scanner-hero-titles">
+            <h2>Cryptographic Ledger Explorer</h2>
+            <p>Inspect the immutable decentralized blocks, consensus proofs, and Merkle tree roots securing produce authenticity.</p>
+          </div>
+          <button class="btn-primary" id="btn-ledger-reverify">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Re-Verify All Blocks
+          </button>
+        </div>
+
+        <div class="hero-stats-grid" style="margin-bottom: 28px;">
+          <div class="hero-stat-box">
+            <div class="hero-stat-label">Consensus Protocol</div>
+            <div class="hero-stat-value" style="font-size: 0.95rem; color: var(--emerald-400);">PoO-BFT (12 Nodes)</div>
+          </div>
+          <div class="hero-stat-box">
+            <div class="hero-stat-label">Total Verified Blocks</div>
+            <div class="hero-stat-value" id="ledger-total-blocks">24 Blocks</div>
+          </div>
+          <div class="hero-stat-box">
+            <div class="hero-stat-label">Tamper Resistance</div>
+            <div class="hero-stat-value verified">100% Intact</div>
+          </div>
+          <div class="hero-stat-box">
+            <div class="hero-stat-label">Current Merkle Root</div>
+            <div class="hero-stat-value" style="font-size: 0.8rem; font-family: var(--font-mono); color: var(--amber-400);">
+              0x7a3f...e102
+            </div>
+          </div>
+        </div>
+
+        <div id="ledger-blocks-list" style="display: flex; flex-direction: column; gap: 14px;">
+          <!-- Dynamically populated block cards -->
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ========================================================================
+       MODAL 1: LIVE WEBCAM CAMERA SCANNER
+       ======================================================================== -->
+  <div class="modal-backdrop" id="modal-camera-scanner">
+    <div class="modal-container">
+      <button class="modal-close-btn" id="btn-close-scanner-modal" title="Close scanner">&times;</button>
+      <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 6px;">Camera QR Scanner</h3>
+      <p style="color: var(--text-secondary); font-size: 0.88rem;">Point your camera at any batch QR code label.</p>
+      
+      <div class="scanner-viewport">
+        <video id="scanner-video" playsinline></video>
+        <div class="scanner-reticle">
+          <div class="scanner-laser-line"></div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.82rem; color: var(--text-muted);">
+          Camera feed processed entirely client-side.
+        </span>
+        <button class="btn-secondary" id="btn-modal-stop-camera" style="padding: 8px 16px;">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 2: PRINTABLE QR CODE PACKAGING LABEL STICKER
+       ======================================================================== -->
+  <div class="modal-backdrop" id="modal-printable-label">
+    <div class="modal-container" style="max-width: 540px;">
+      <button class="modal-close-btn" id="btn-close-label-modal">&times;</button>
+      <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 6px;">Produce Packaging Label</h3>
+      <p style="color: var(--text-secondary); font-size: 0.88rem;">
+        Physical crate & punnet label sticker ready for printing.
+      </p>
+
+      <div class="printable-label-card" id="printable-label-content">
+        <div class="label-header">
+          <div>
+            <div style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: #047857; letter-spacing: 0.05em;">
+              CERTIFIED ORGANIC PRODUCE • AGRITRACE 360
+            </div>
+            <h3 id="label-produce-name">Royal Alphonso Mangoes</h3>
+            <div style="font-size: 0.8rem; color: #4b5563;" id="label-produce-farm">Sunridge Bio-Dynamic Orchards</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 0.72rem; font-weight: 700; color: #1f2937;">BATCH NO.</div>
+            <div style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 800; color: #047857;" id="label-batch-id">
+              AGRI-2026-MNG-9842
+            </div>
+          </div>
+        </div>
+
+        <div class="label-body-grid">
+          <div class="label-specs-list">
+            <div><strong>Harvest Date:</strong> <span id="label-harvest-date">2026-10-23</span></div>
+            <div><strong>Best Before:</strong> <span id="label-expiry-date">2026-11-06</span></div>
+            <div><strong>Quality Grade:</strong> <span id="label-quality-grade">Grade A+ Export</span></div>
+            <div><strong>Storage:</strong> <span id="label-temp-range">10.0°C - 13.5°C</span></div>
+            <div><strong>Integrity Hash:</strong> <span id="label-mini-hash" style="font-family: var(--font-mono); font-size: 0.7rem;">0x4a9f...e18b</span></div>
+          </div>
+
+          <div class="label-qr-box">
+            <div id="printable-qr-code-canvas"></div>
+          </div>
+        </div>
+
+        <div style="margin-top: 14px; padding-top: 8px; border-top: 1px dashed #d1d5db; display: flex; justify-content: space-between; font-size: 0.7rem; color: #6b7280;">
+          <span>Scan QR code with smartphone to view full provenance</span>
+          <span>100% Recyclable</span>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: flex-end;">
+        <button class="btn-secondary" id="btn-download-qr-png">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Save QR Code
+        </button>
+        <button class="btn-primary" id="btn-trigger-print">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+          Print Label Sticker
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 3: FARMER GRATITUDE & DIRECT TIP
+       ======================================================================== -->
+  <div class="modal-backdrop" id="modal-farmer-tip">
+    <div class="modal-container" style="max-width: 480px;">
+      <button class="modal-close-btn" id="btn-close-tip-modal">&times;</button>
+      <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 6px;">Thank the Farmer</h3>
+      <p style="color: var(--text-secondary); font-size: 0.88rem;">
+        Send a note of appreciation and direct micro-gratitude to the farm grower.
+      </p>
+
+      <div style="margin: 20px 0; background: rgba(0,0,0,0.3); padding: 14px; border-radius: var(--radius-md);">
+        <div style="font-weight: 700; font-size: 0.95rem;" id="modal-tip-farmer-name">Rameshwar Patil</div>
+        <div style="font-size: 0.82rem; color: var(--text-secondary);" id="modal-tip-farm-name">Sunridge Bio-Dynamic Orchards</div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label class="form-label">Personal Message of Appreciation</label>
+        <textarea class="form-control" id="input-farmer-note" rows="3" placeholder="These mangoes are the sweetest we've ever tasted! Thank you for your regenerative farming care."></textarea>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <button class="btn-primary" id="btn-submit-farmer-tip">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          Send Gratitude
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Area -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Core JavaScript Modules -->
+  <script src="js/qrcode.min.js"></script>
+  <script src="js/jsQR.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/ledger.js"></script>
+  <script src="js/qr-scanner.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
